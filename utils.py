@@ -31,14 +31,27 @@ class config:
 def detect_text(path):
     """Detects text in the file."""
     
-    client = vision.ImageAnnotatorClient()
+    try:
+        client = vision.ImageAnnotatorClient()
+    except Exception as e:
+        print(f"Error creating ImageAnnotatorClient: {e}")
+        return (False, "Error creating ImageAnnotatorClient")
 
-    with open(path, "rb") as image_file:
-        content = image_file.read()
+    try:
+        with open(path, "rb") as image_file:
+            content = image_file.read()
+    except Exception as e:
+        print(f"Error reading file {path}: {e}")
+        return (False, f"Error reading file {path}")
 
     image = vision.Image(content=content)
 
-    response = client.text_detection(image=image)
+    try:
+        response = client.text_detection(image=image)
+    except Exception as e:
+        print(f"Error during text detection: {e}")
+        return (False, "Error during text detection")
+
     texts = response.text_annotations
     if len(texts) == 0:
         return (False, "No text detected in the image")
@@ -55,41 +68,48 @@ def detect_text(path):
 
 def extract_question(text):
     client = OpenAI()
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": "If the text have any questions extract the question else create a question related to it.",
-            },
-          
-            {
-                "role": "user",
-                "content": text,
-            }
-        ],
-    )
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "If the text have any questions extract the question else create a question related to it.",
+                },
+              
+                {
+                    "role": "user",
+                    "content": text,
+                }
+            ],
+        )
+    except Exception as e:
+        print(f"Error during OpenAI API call: {e}")
+        return "Error during OpenAI API call"
 
     return completion.choices[0].message.content
 
 def search_web(question):
     client = OpenAI()
-    completion = client.chat.completions.create(
-        model="gpt-4o-search-preview",
-        web_search_options={},
-        messages=[
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-search-preview",
+            web_search_options={},
+            messages=[
 
-            {
-                "role": "system",
-                "content": "Real time search the web for the answer of the question and keep the answers short straight to point.",
-            },
+                {
+                    "role": "system",
+                    "content": "Real time search the web for the answer of the question and keep the answers short straight to point.",
+                },
 
-            {
-                "role": "user",
-                "content": question,
-            }
-        ],
-    )
+                {
+                    "role": "user",
+                    "content": question,
+                }
+            ],
+        )
+    except Exception as e:
+        print(f"Error during OpenAI API call: {e}")
+        return "Error during OpenAI API call"
 
     return completion.choices[0].message.content
-
