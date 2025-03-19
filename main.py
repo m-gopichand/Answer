@@ -1,7 +1,6 @@
 import cv2 
 import os
 import shutil
-from openai import OpenAI
 from utils import config, detect_text, search_web, extract_question
 
 
