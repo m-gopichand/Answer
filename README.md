@@ -38,3 +38,10 @@ ScanQuery is a tool that captures images from your webcam, detects text within t
 
     - Press `Space` to capture an image.
     - Press `Esc` to exit the application.
+
+## Working
+
+1. The application captures images from the webcam.
+2. The text is detected from the images using the Google Cloud Vision API.
+3. The questions are extracted from the detected text using the OpenAI API.
+4. The questions are searched on the web using the gpt-4o-search-preview API.
